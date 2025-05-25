@@ -12,11 +12,13 @@ async def set_users(tg_id):
     async with async_session() as session:
         user = await session.scalar(select(User).where(User.tg_id == tg_id))
         if not user:
-            session.add(User(tg_id=tg_id))            
-
-        user_profile = await session.scalar(select(User_profile).where(User_profile.id_user == user.id_user))
-        if not user_profile:
-            session.add(User_profile(id_user=user.id_user,sub_date_from=datetime.date(2000, 1, 1),
+            session.add(User(tg_id=tg_id))
+            session.add(User_profile(id_user=user.id_user, sub_date_from=datetime.date(2000, 1, 1),
+                                     sub_date_to=datetime.date(2000, 1, 1), mobile=0))
+        else:
+            user_profile = await session.scalar(select(User_profile).where(User_profile.id_user == user.id_user))
+            if not user_profile:
+                session.add(User_profile(id_user=user.id_user,sub_date_from=datetime.date(2000, 1, 1),
                                      sub_date_to=datetime.date(2000, 1, 1),mobile=0))
 
         await session.commit()
