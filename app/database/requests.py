@@ -59,14 +59,17 @@ async def sel_key(tg_id):
                     id_key = await session.scalar(select(Key_User.id_key).where(Key_User.id_user == id_user and Key_User.type_key == user_profile.mobile))
                     if not id_key:
                         key = await session.scalar(select(Key).where(Key.type_key == user_profile.mobile and Key.used == False))
-                        session.add(Key_User(id_key=key.id_key, id_user=id_user, type_key=user_profile.mobile))
-                        key.used = True
-                        text_key = key.text_key
-                        try:
-                            await session.commit()
-                        except exc.IntegrityError:
-                            return None
-                        return text_key
+                            if key:
+                                session.add(Key_User(id_key=key.id_key, id_user=id_user, type_key=user_profile.mobile))
+                                key.used = True
+                                text_key = key.text_key
+                                try:
+                                    await session.commit()
+                                except exc.IntegrityError:
+                                    return None
+                                return text_key
+                            else:
+                                return None
                     else:
                         key = await session.scalar(select(Key).where(Key.id_key == id_key))
                         text_key = key.text_key
